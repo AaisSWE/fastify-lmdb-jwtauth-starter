@@ -1,9 +1,10 @@
 import fp from "fastify-plugin";
 import bcrypt from "bcrypt";
 import jwt from "@fastify/jwt";
+import env from "./env";
 
 // Change this for your real app
-const JWT_SECRET = "supersecret";
+const JWT_SECRET = env.jwtSecret;
 
 async function authPlugin(app) {
     await app.register(jwt, {

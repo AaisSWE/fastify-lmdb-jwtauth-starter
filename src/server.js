@@ -3,6 +3,7 @@ import authPlugin from "./auth.js";
 import perRequestServices from "./request-di.js";
 import buildUserController from "./users/user-controller.js";
 import { v4 as uuidv4 } from "uuid";
+import env from "./env.js";
 
 const app = Fastify({
     logger: true,
@@ -17,7 +18,7 @@ async function build() {
 }
 
 build().then(() => {
-    app.listen({ port: 3000 }, (err, address) => {
+    app.listen({ port: env.port }, (err, address) => {
         if (err) throw err;
         console.log(`server running at ${address}`);
     });
