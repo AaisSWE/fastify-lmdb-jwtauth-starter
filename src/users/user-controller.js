@@ -1,8 +1,12 @@
-export default function buildUserController(app, userService) {
+export default function buildUserController(app) {
     // register
     app.post("/register", async (req, reply) => {
         const { username, password } = req.body;
-        const user = await userService.createUserAsync({ username, password });
+
+        const user = await req.userService.createUserAsync({
+            username,
+            password,
+        });
 
         if (user.error) {
             return reply.code(400).send({ error: user.error });
@@ -14,7 +18,11 @@ export default function buildUserController(app, userService) {
     // login
     app.post("/login", async (req, reply) => {
         const { username, password } = req.body;
-        const result = await userService.loginUserAsync({ username, password });
+
+        const result = await req.userService.loginUserAsync({
+            username,
+            password,
+        });
 
         if (result.error) {
             return reply.code(400).send({ error: result.error });
@@ -27,7 +35,8 @@ export default function buildUserController(app, userService) {
 
     // protected
     app.get("/me", { preHandler: app.authenticate }, async (req, reply) => {
-        const user = await userService.findUserByIdAsync(req.user.id);
+        const user = await req.userService.findUserByIdAsync(req.user.id);
+
         const response = {
             id: user.id,
             username: user.username,
