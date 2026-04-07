@@ -25,4 +25,18 @@ async function authPlugin(app) {
     );
 }
 
+export class PasswordService {
+    constructor(app) {
+        this.app = app;
+    }
+
+    async hashPassword(password) {
+        return await this.app.hashPassword(password);
+    }
+
+    async verifyPassword(password, hash) {
+        return await this.app.verifyPassword(password, hash);
+    }
+}
+
 export default fp(authPlugin);

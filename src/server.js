@@ -1,11 +1,14 @@
 import Fastify from "fastify";
 import authPlugin from "./auth.js";
-import { v4 as uuidv4 } from "uuid";
+import { PasswordService } from "./auth.js";
+import UserService from "./users/user-service.js";
 import UserRepository from "./users/user-repository.js";
 
 const app = Fastify({ logger: true });
 
 const userRepo = new UserRepository();
+const passwordService = new PasswordService(app);
+const userService = new UserService(app.log, userRepo, passwordService);
 
 async function build() {
     await app.register(authPlugin);
@@ -13,16 +16,11 @@ async function build() {
     // register
     app.post("/register", async (req, reply) => {
         const { username, password } = req.body;
+        const user = await userService.createUserAsync({ username, password });
 
-        const existing = await userRepo.findUserByUsername(username);
-        if (existing) {
-            return reply.code(400).send({ error: "user exists" });
+        if (user.error) {
+            return reply.code(400).send({ error: user.error });
         }
-
-        const passwordHash = await app.hashPassword(password);
-        const id = uuidv4();
-
-        await userRepo.createUser({ id, username, passwordHash });
 
         return { ok: true };
     });
@@ -30,28 +28,25 @@ async function build() {
     // login
     app.post("/login", async (req, reply) => {
         const { username, password } = req.body;
+        const result = await userService.loginUserAsync({ username, password });
 
-        const user = await userRepo.findUserByUsername(username);
-        if (!user) {
-            return reply.code(401).send({ error: "invalid" });
+        if (result.error) {
+            return reply.code(400).send({ error: result.error });
         }
 
-        const valid = await app.verifyPassword(password, user.passwordHash);
-
-        if (!valid) {
-            return reply.code(401).send({ error: "invalid" });
-        }
-
-        const token = app.jwt.sign({ id: user.id });
+        const token = app.jwt.sign({ id: result });
 
         return { token };
     });
 
     // protected
     app.get("/me", { preHandler: app.authenticate }, async (req, reply) => {
-        const user = await userRepo.findUserById(req.user.id);
-        // Emit password hash to client
-        const response = { id: user.id, username: user.username };
+        const user = await userService.findUserByIdAsync(req.user.id);
+        const response = {
+            id: user.id,
+            username: user.username,
+            created: user.createdTime,
+        };
 
         return response;
     });
