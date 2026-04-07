@@ -1,6 +1,7 @@
 import Fastify from "fastify";
 import authPlugin from "./auth.js";
 import { createUser, findUserByUsername, findUserById } from "./db.js";
+import { v4 as uuidv4 } from "uuid";
 
 const app = Fastify({ logger: true }); // ✅ create instance
 
@@ -17,7 +18,7 @@ async function build() {
         }
 
         const passwordHash = await app.hashPassword(password);
-        const id = Date.now().toString();
+        const id = uuidv4();
 
         await createUser({ id, username, passwordHash });
 
