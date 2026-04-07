@@ -1,5 +1,28 @@
 import { v4 as uuidv4 } from "uuid";
 
+const MIN_PASSWORD_LENGTH = 8;
+
+/**
+ * Checks if a given password is valid.
+ * A password is considered valid if it:
+ *   - is at least 8 characters long
+ *   - contains at least one lowercase letter
+ *   - contains at least one uppercase letter
+ *   - contains at least one number
+ * @param {string} password the password to check
+ * @returns {boolean} whether the password is valid
+ * @private
+ */
+function isValidPassword(password) {
+    return (
+        password.length >= MIN_PASSWORD_LENGTH &&
+        password.match(/[a-z]/) &&
+        password.match(/[A-Z]/) &&
+        password.match(/[0-9]/)
+    );
+}
+
+// Do not log personally identifiable information in prod apps, therefore, no username in logs.
 export default class UserService {
     constructor(logger, userRepo, passwordService) {
         this.logger = logger;
@@ -8,6 +31,17 @@ export default class UserService {
     }
 
     async createUserAsync({ username, password }) {
+        // Basic validations
+        if (!username || !password) {
+            return { error: "username and password are required" };
+        }
+
+        if (!isValidPassword(password)) {
+            return {
+                error: "password must be at least 8 characters and contain at least one lowercase letter, one uppercase letter, and one number",
+            };
+        }
+
         // Check if user exists
         const existing = await this.userRepo.findUserByUsername(username);
         if (existing) {
@@ -35,12 +69,12 @@ export default class UserService {
     }
 
     async loginUserAsync({ username, password }) {
-        this.logger.info(`Logging in user: ${username}`);
+        this.logger.info(`Logging in user`);
 
         const user = await this.userRepo.findUserByUsername(username);
         if (!user) {
-            this.logger.info(`User not found: ${username}`);
-            return { error: "user not found" };
+            this.logger.info("User does not exist");
+            return { error: `user: ${username} does not exist` };
         }
 
         const valid = await this.passwordService.verifyPassword(
