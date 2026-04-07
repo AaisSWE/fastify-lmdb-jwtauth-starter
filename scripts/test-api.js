@@ -50,7 +50,7 @@ const tests = [
     // 1. register + login + /me in one go
     test("register-login-me flow", async () => {
         const username = randomUsername();
-        const password = "123456";
+        const password = "Aa123456";
 
         const registerData = await registerUser(username, password);
         console.log("register:", registerData);
@@ -76,7 +76,7 @@ const tests = [
     // 3. login with wrong password
     test("login wrong password", async () => {
         const username = randomUsername();
-        const password = "123456";
+        const password = "Aa123456";
 
         await registerUser(username, password);
 
