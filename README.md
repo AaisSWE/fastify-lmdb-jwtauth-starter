@@ -10,18 +10,6 @@ npm install
 npm run start
 ```
 
-## Project Structure
-
-```
-src/
-├─ server.js      # Fastify server & routes
-├─ auth.js        # JWT + password helper decorators
-├─ db.js          # LMDB database helpers
-scripts/
-└─ test-api.js    # Simple test script for API
-data/             # LMDB database folder (ignored in git)
-```
-
 ## API Endpoints
 
 | Method | Route     | Description                                   |
@@ -45,9 +33,3 @@ Run the with:
 ```bash
 npm run test-api
 ```
-
-## Notes
-
-- LMDB data is stored in `data/` (ignored by git)
-- Perfect for prototyping or learning Fastify with lightweight persistence
-- Easily extendable for real-world small applications
