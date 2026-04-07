@@ -1,7 +1,7 @@
 import fp from "fastify-plugin";
 import bcrypt from "bcrypt";
 import jwt from "@fastify/jwt";
-import env from "./env";
+import env from "./env.js";
 
 // Change this for your real app
 const JWT_SECRET = env.jwtSecret;
