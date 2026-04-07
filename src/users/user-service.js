@@ -71,12 +71,18 @@ export default class UserService {
     async loginUserAsync({ username, password }) {
         this.logger.info(`Logging in user`);
 
+        if (!username || !password) {
+            return { error: "username and password are required" };
+        }
+
+        // Check if user exists
         const user = await this.userRepo.findUserByUsername(username);
         if (!user) {
             this.logger.info("User does not exist");
             return { error: `user: ${username} does not exist` };
         }
 
+        // Check password
         const valid = await this.passwordService.verifyPassword(
             password,
             user.passwordHash,
